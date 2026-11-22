@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "seed": 42,
+  "days": 180,
+  "start": "2025-01-01",
+  "sample_minutes": 5,
+  "segments": [
+    "SEG-A",
+    "SEG-B",
+    "SEG-C",
+    "SEG-D"
+  ],
+  "rows_before_defects": 207360,
+  "anomalous_rows_before_defects": 7395,
+  "events_per_segment": {
+    "spike": 60,
+    "pressure_flow_deviation": 10,
+    "drift": 6,
+    "flatline": 8,
+    "noise_burst": 8,
+    "temperature_excursion": 6
+  },
+  "defects": {
+    "missing_cells": 1771,
+    "sentinel_cells": 40,
+    "dropped_rows": 53,
+    "duplicate_rows": 207
+  },
+  "rows_written": 207514
+}

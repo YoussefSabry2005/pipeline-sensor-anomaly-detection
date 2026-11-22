@@ -1,0 +1,51 @@
+# Simulated streaming system: producer -> local message log -> processor -> dashboard.
+# Start:  docker compose up --build        Dashboard: http://localhost:8501
+# Stop:   docker compose down              Reset data: docker compose down -v
+name: pipeline-anomaly-stream
+
+x-common: &common
+  build: .
+  image: pipeline-anomaly-stream:latest
+  volumes:
+    - stream-data:/data
+  environment: &env
+    LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    STREAM_DETECTORS: ${STREAM_DETECTORS:-Isolation Forest,Local Outlier Factor}
+  restart: unless-stopped
+
+services:
+  processor:
+    <<: *common
+    command: ["python", "-m", "pipeline_anomaly.streaming.processor"]
+    environment:
+      <<: *env
+      MAX_BATCH: ${MAX_BATCH:-64}
+
+  producer:
+    <<: *common
+    command: ["python", "-m", "pipeline_anomaly.streaming.producer", "--loop"]
+    depends_on:
+      - processor
+    environment:
+      <<: *env
+      STREAM_RATE: ${STREAM_RATE:-40}
+      STREAM_DAYS: ${STREAM_DAYS:-30}
+      STREAM_SEED: ${STREAM_SEED:-2026}
+      FAULT_RATE: ${FAULT_RATE:-0.01}
+
+  dashboard:
+    <<: *common
+    command: ["streamlit", "run", "dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0",
+              "--server.headless=true", "--browser.gatherUsageStats=false"]
+    depends_on:
+      - processor
+    ports:
+      - "${DASHBOARD_PORT:-8501}:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  stream-data:

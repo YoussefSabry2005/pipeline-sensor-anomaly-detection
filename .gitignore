@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+build/
+dist/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Regenerable outputs (run `make all` to recreate them)
+data/processed/*
+!data/processed/.gitkeep
+models/*
+!models/.gitkeep
+runtime/
+
+.env
